@@ -3,13 +3,13 @@ package io.witcradg.shopifysquareapi.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.witcradg.shopifysquareapi.entity.RawJsonEntity;
 import io.witcradg.shopifysquareapi.repository.IRawJsonRepository;
+import io.witcradg.shopifysquareapi.service.ICommunicatorService;
 
 @RestController
 public class RawJsonController {
@@ -17,9 +17,16 @@ public class RawJsonController {
 	@Autowired 
 	IRawJsonRepository rawJsonRepo;
 	
+	@Autowired
+	ICommunicatorService communicatorService;
 	
 	@PutMapping("/ssa")
 	public ResponseEntity<RawJsonEntity> save( @RequestBody RawJsonEntity rawJsonEntity) {
+		
+		communicatorService.createCustomer(rawJsonEntity);
+		communicatorService.createInvoice(rawJsonEntity);
+		communicatorService.sendSms(rawJsonEntity);
+		
 		System.err.println(
 				String.format("rawJsonEntity %s", rawJsonEntity.getRawJson()));
 		try {
