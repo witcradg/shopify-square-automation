@@ -24,14 +24,14 @@ public class RawJsonController {
 	@PutMapping("/string")
 	public ResponseEntity<RawJsonEntity> save( @RequestBody RawJsonEntity rawJsonEntity) {
 		
-		//communicatorService.createCustomer(rawJsonEntity);
-		communicatorService.createInvoice(rawJsonEntity);
-		communicatorService.sendSms(rawJsonEntity);
+//		communicatorService.createCustomer(rawJsonEntity);
+//		communicatorService.createInvoice(rawJsonEntity);
+//		communicatorService.sendSms(rawJsonEntity);
 		
 		System.err.println(
 				String.format("rawJsonEntity %s", rawJsonEntity.getRawJson()));
 		try {
-			return new ResponseEntity<>(rawJsonRepo.save(rawJsonEntity), HttpStatus.CREATED);
+			return new ResponseEntity<>(rawJsonRepo.save(rawJsonEntity), HttpStatus.I_AM_A_TEAPOT);
 		} catch (Exception e) {
 			System.err.println(e.getMessage());
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -42,7 +42,8 @@ public class RawJsonController {
 	public ResponseEntity<String> save( @RequestBody Customer customer) {
 	
 		try {
-			communicatorService.createCustomer(customer);
+			//communicatorService.createCustomer(customer);
+			communicatorService.createInvoice(customer);
 			return ResponseEntity.ok("Customer Created");
 		} catch (Exception e) {
 			System.err.println(e.getMessage());

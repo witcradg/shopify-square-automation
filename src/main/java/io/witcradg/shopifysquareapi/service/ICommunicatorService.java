@@ -5,6 +5,7 @@ import io.witcradg.shopifysquareapi.entity.RawJsonEntity;
 
 public interface ICommunicatorService {
 	public abstract void createCustomer(Customer customer);
-	public abstract void createInvoice(RawJsonEntity rawJsonEntity);
-	public abstract void sendSms(RawJsonEntity rawJsonEntity);
+	public abstract void createOrder(Customer customer);
+	public abstract void createInvoice(Customer customer);
+	public abstract void sendSms(Customer customer);
 }

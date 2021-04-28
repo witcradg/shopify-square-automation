@@ -1,12 +1,11 @@
 package io.witcradg.shopifysquareapi.service;
 
-import java.net.http.HttpResponse;
+import java.util.ArrayList;
 import java.util.UUID;
 
 import org.json.JSONObject;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpRequest;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -16,116 +15,97 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.witcradg.shopifysquareapi.entity.Customer;
-import io.witcradg.shopifysquareapi.entity.RawJsonEntity;
 
 @Service
 public class CommunicatorServiceImpl implements ICommunicatorService {
 	
-	RestTemplate restTemplate = new RestTemplate();
-	final private static String CUSTOMER_URL = "https://connect.squareupsandbox.com/v2/customers";
-
-	@Override
-	public void createCustomer(Customer customer) {
-
-
-		/*********************** artificially override the submitted values for testing */
-		customer.setFamilyName("Witt");
-		customer.setGivenName("Dean");
-	    customer.setNickname("Naed");		
-	    customer.setIdempotencyKey(UUID.randomUUID().toString());
-	    customer.setPhoneNumber("(916) 123-4567");
-
-		System.out.println("running createCustomer stub: " + customer.toString() + " \n\n");		
-		
-		HttpHeaders headers = new HttpHeaders();
-
+	private RestTemplate restTemplate = new RestTemplate();
+	private ObjectMapper objectMapper = new ObjectMapper();
+	private HttpHeaders headers = new HttpHeaders();
+	{
 		headers.add("Square-Version", "2021-04-21");
 	    headers.add("Authorization", "Bearer EAAAEDtqOqiRL-XbBm_RjAG4Nns-CBJbpmC4CmeIzO-35KQ-LyUymZYzvlg7dJh1"); //TODO token
 	    headers.setContentType(MediaType.APPLICATION_JSON);
-	    
-	    JSONObject jsonObject = new JSONObject();
-	    jsonObject.put("company_name", "WitcraftIO");
-		jsonObject.put("email_address", "witt@b.com");
-		jsonObject.put("family_name", "Wit");
-		jsonObject.put("given_name", "Dean");
-		jsonObject.put("nickname", "Naed");
-		jsonObject.put("idempotency_key", customer.getIdempotencyKey());
-		jsonObject.put("phone_number", "916-123-1234");
-		
-		
-	    HttpEntity<String> request = 
-	    	      new HttpEntity<String>(jsonObject.toString(), headers);
-	    	    
-		System.out.println("Request: \n" + request+"\n");		
-		
-		String res = restTemplate.postForObject(CUSTOMER_URL, request, String.class);		
-		
-		ObjectMapper objectMapper = new ObjectMapper();
+	}
 
+	final private static String CUSTOMER_URL = "https://connect.squareupsandbox.com/v2/customers";
+	
+	
+	@Override
+	public void createCustomer(Customer customer) {
+
+		System.out.println("createCustomer: " + customer.toString() + " \n\n");		
+
+
+	    JSONObject addressObject = new JSONObject();
+	    addressObject.put("address_line_1", customer.getAddressLine1());
+	    addressObject.put("address_line_2", customer.getAddressLine2());
+	    addressObject.put("address_line_3", customer.getAddressLine3());
+				
+	    JSONObject requestBody = new JSONObject();
+	    requestBody.put("company_name", customer.getCompanyName());
+		requestBody.put("email_address", customer.getEmailAddress());
+		requestBody.put("family_name", customer.getFamilyName());
+		requestBody.put("given_name", customer.getGivenName());
+		requestBody.put("nickname", customer.getNickname());
+		requestBody.put("idempotency_key", UUID.randomUUID().toString());
+		requestBody.put("phone_number", customer.getPhoneNumber());
+		requestBody.put("address", addressObject);
+
+	    HttpEntity<String> request = new HttpEntity<String>(requestBody.toString(), headers);
+		
+		String response = restTemplate.postForObject(CUSTOMER_URL, request, String.class);		
+		System.out.println("response: \n" + response+"\n");
+		
 		try {
-			JsonNode root = objectMapper.readTree(res);
+			JsonNode root = objectMapper.readTree(response);
 			System.out.println("root: \n" + root+"\n");
 			
 		} catch (JsonProcessingException e) {
-			// TODO Auto-generated catch block
+			// TODO some notification mechanism would be good. Email?
 			e.printStackTrace();
 		}
-		
-	    /****************** https://www.concretepage.com/spring-5/spring-resttemplate-postforobject ***********/
-		//String res = restTemplate.postForObject(CUSTOMER_URL, request, String.class);
-		
-		System.out.println("HttpResponse: \n" + res.toString()+"\n");
-	    
-		//MAY need to marshal the data into a new object from the cart post object, 
-		//but for now I'm using the Square format for the Customer object 
-		//so I can just play with it before submitting it here
-		
-	    /************************** https://developer.squareup.com/docs/customers-api/use-the-api/keep-records ******************/
-	    	
+	}
+	
+	@Override
+	public void createOrder(Customer customer) {
+		System.out.println("createOrder: " + customer.toString() + " \n\n");		
+	    JSONObject requestBody = new JSONObject();
+		requestBody.put("idempotency_key", UUID.randomUUID().toString());
 
-//		curl https://connect.squareupsandbox.com/v2/customers \
-//			  -X POST \
-//			  -H 'Square-Version: 2021-04-21' \
-//			  -H 'Authorization: Bearer {ACCESS_TOKEN}' \
-//			  -H 'Content-Type: application/json' \
-//			  -d '{
-//			    "company_name": "ACME Inc.",
-//			    "email_address": "john.doe.jr@acme.com",
-//			    "family_name": "Doe",
-//			    "given_name": "John",
-//			    "nickname": "Junior",
-//			    "idempotency_key": "59973bb6-75ae-497a-a006-b2490example",
-//			    "phone_number": "+1 (206) 222-3456"
-//			  }'
+		ArrayList<JSONObject> lineItemArray = new ArrayList<>();
 		
-		/************************** https://www.baeldung.com/spring-resttemplate-post-json ******************/
-		/*********** note HttpEntity<String> **********/
-/*		
-	    HttpEntity<String> request = 
-	    	      new HttpEntity<String>(personJsonObject.toString(), headers);
-	    	    
-	    	    String personResultAsJsonStr = 
-	    	      restTemplate.postForObject(createPersonUrl, request, String.class);
-	    	    JsonNode root = objectMapper.readTree(personResultAsJsonStr);
-*/		
+		//for each item in the customerOrder create a JSONObject and add it to the array
+		JSONObject lineItemObject = new JSONObject();
+		//a lineItemObject must have both a description and a price (and a quantity?)
 		
-		//create headers
-//		  -H 'Square-Version: 2021-04-21' \
-//		  -H 'Authorization: Bearer {ACCESS_TOKEN}' \
-//		  -H 'Content-Type: application/json' \
+		lineItemObject.put("item", "an ordered item");
+		lineItemObject.put("quantity", "1");
+		//add it to the array of items
+		lineItemArray.add(lineItemObject);
 		
-		
+		System.out.println("\n lineItemArray\n" + lineItemArray.toString());
+						
+	    requestBody.put("order", "");
 	}
 
 	@Override
-	public void createInvoice(RawJsonEntity rawJsonEntity) {
-		System.out.println("running createInvoice stub: " + rawJsonEntity + " \n\n");
-		
+	public void createInvoice(Customer customer) {
+		System.out.println("createInvoice: " + customer.toString() + " \n\n");	
+	    JSONObject invoiceObject = new JSONObject();
+	    invoiceObject.put("description", "some description line");
+	    invoiceObject.put("order_number", customer.getOrderNumber());	
+	    invoiceObject.put("order_total", customer.getOrderTotal());	
+	    invoiceObject.put("idempotency_key", UUID.randomUUID().toString());
+
+	    JSONObject requestBody = new JSONObject();
+	    requestBody.put("invoice", invoiceObject);
+	    HttpEntity<String> request = new HttpEntity<String>(requestBody.toString(), headers);
+		System.out.println("request: \n" + request+"\n");
 	}
 
 	@Override
-	public void sendSms(RawJsonEntity rawJsonEntity) {
-		System.out.println("running sendSms stub: " + rawJsonEntity + " \n\n");
-		
+	public void sendSms(Customer customer) {
+		System.out.println("running sendSms stub: " + customer + " \n\n");
 	}
 }

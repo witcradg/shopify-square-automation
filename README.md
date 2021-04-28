@@ -40,6 +40,20 @@ Square reference
 <p><a>https://developer.squareup.com/docs/customers-api/use-the-api/keep-records</a></p>
 <p><a>https://developer.squareup.com/docs/customers-api/use-the-api/customer-webhooks</a></p>
 
+### API WIP
+
+customer
+<p><a>https://developer.squareup.com/reference/square/customers-api/create-customer#example-code</a></p>
+
+invoice
+<p><a></a></p>
+
+order
+<p><a></a></p>
+
+category
+<p><a></a></p>
+
 ***
 Notes
 Questions for Devin
@@ -56,10 +70,10 @@ The CreateCustomer endpoint permits creating duplicate customer profiles. Before
 
 
 
-#### create cusomer:
+#### create customer
 
-<p><a>https://developer.squareup.com/docs/customers-api/use-the-api/keep-records
-
+<p><a>https://developer.squareup.com/docs/customers-api/use-the-api/keep-records</a></p>
+<code>
   {
   "customer": {
     "id": "GSA67K1YGCSQQ47KSW7J7WX53M",
@@ -78,80 +92,8 @@ The CreateCustomer endpoint permits creating duplicate customer profiles. Before
     "version": 0
   }
 }
+</code>
 
-https://developer.squareup.com/docs/customers-api/use-the-api/integrate-with-other-services
-curl https://connect.squareupsandbox.com/v2/orders \
-  -X POST \
-  -H 'Square-Version: 2021-04-21' \
-  -H 'Authorization: Bearer {ACCESS_TOKEN}' \
-  -H 'Content-Type: application/json' \
-  -d '{
-    "order": {
-      "location_id": "EF6D9Cexample",
-      "customer_id": "TNQC0TYTWMRSFFQ157Kexample",
-      "state": "OPEN",
-      "source": {
-        "name": "Sunset service"
-      }
-    },
-    "idempotency_key": "{UNIQUE_KEY}"
-  }'
-  
-{
-  "order": {
-    "id": "8Kd1p0cf14W6nBrvbw8RM0example",
-    "location_id": "EF6D9Cexample",
-    "created_at": "2020-05-27T20:23:27.168Z",
-    "updated_at": "2020-05-27T20:23:27.168Z",
-    "state": "OPEN",
-    "version": 1,
-    "total_tax_money": {
-      "amount": 0,
-      "currency": "USD"
-    },
-    "total_discount_money": {
-      "amount": 0,
-      "currency": "USD"
-    },
-    "total_tip_money": {
-      "amount": 0,
-      "currency": "USD"
-    },
-    "total_money": {
-      "amount": 0,
-      "currency": "USD"
-    },
-    "total_service_charge_money": {
-      "amount": 0,
-      "currency": "USD"
-    },
-    "net_amounts": {
-      "total_money": {
-        "amount": 0,
-        "currency": "USD"
-      },
-      "tax_money": {
-        "amount": 0,
-        "currency": "USD"
-      },
-      "discount_money": {
-        "amount": 0,
-        "currency": "USD"
-      },
-      "tip_money": {
-        "amount": 0,
-        "currency": "USD"
-      },
-      "service_charge_money": {
-        "amount": 0,
-        "currency": "USD"
-      }
-    },
-    "source": {
-      "name": "Sunset service"
-    },
-    "customer_id": "TNQC0TYTWMRSFFQ157Kexample"
-  }
-}  
-    
+#### create invoice
+<p><a>https://developer.squareup.com/docs/invoices-api/overview</a></p>
  

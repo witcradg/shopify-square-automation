@@ -25,10 +25,22 @@ public class Customer {
 	
 	@JsonProperty("nickname")
 	private String nickname;
-
-	@JsonProperty("idempotency_key")
-	private String idempotencyKey;
 	
 	@JsonProperty("phone_number")
 	private String phoneNumber;
+	
+	@JsonProperty("address_line_1")
+	private String addressLine1;
+
+	@JsonProperty("address_line_2")
+	private String addressLine2;
+
+	@JsonProperty("address_line_3")
+	private String addressLine3;
+	
+	@JsonProperty("order_number")
+	private String orderNumber;
+	
+	@JsonProperty("order_total")
+	private String orderTotal;
 }
