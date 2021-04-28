@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.witcradg.shopifysquareapi.entity.Customer;
 import io.witcradg.shopifysquareapi.entity.RawJsonEntity;
 import io.witcradg.shopifysquareapi.repository.IRawJsonRepository;
 import io.witcradg.shopifysquareapi.service.ICommunicatorService;
@@ -20,10 +21,10 @@ public class RawJsonController {
 	@Autowired
 	ICommunicatorService communicatorService;
 	
-	@PutMapping("/ssa")
+	@PutMapping("/string")
 	public ResponseEntity<RawJsonEntity> save( @RequestBody RawJsonEntity rawJsonEntity) {
 		
-		communicatorService.createCustomer(rawJsonEntity);
+		//communicatorService.createCustomer(rawJsonEntity);
 		communicatorService.createInvoice(rawJsonEntity);
 		communicatorService.sendSms(rawJsonEntity);
 		
@@ -36,4 +37,17 @@ public class RawJsonController {
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
+	
+	@PutMapping("/ssa")
+	public ResponseEntity<String> save( @RequestBody Customer customer) {
+	
+		try {
+			communicatorService.createCustomer(customer);
+			return ResponseEntity.ok("Customer Created");
+		} catch (Exception e) {
+			System.err.println(e.getMessage());
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+	
 }
