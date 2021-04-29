@@ -1,13 +1,15 @@
 package io.witcradg.shopifysquareapi.controller;
 
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import io.witcradg.shopifysquareapi.entity.Customer;
+import io.witcradg.shopifysquareapi.entity.CustomerOrder;
 import io.witcradg.shopifysquareapi.entity.RawJsonEntity;
 import io.witcradg.shopifysquareapi.repository.IRawJsonRepository;
 import io.witcradg.shopifysquareapi.service.ICommunicatorService;
@@ -21,17 +23,20 @@ public class RawJsonController {
 	@Autowired
 	ICommunicatorService communicatorService;
 	
-	@PutMapping("/string")
-	public ResponseEntity<RawJsonEntity> save( @RequestBody RawJsonEntity rawJsonEntity) {
+	@PostMapping("/cart")
+	public ResponseEntity<HttpStatus> save( @RequestBody String rawJson) {
+
+	    JSONObject jsonObject = new JSONObject(rawJson);
 		
-//		communicatorService.createCustomer(rawJsonEntity);
-//		communicatorService.createInvoice(rawJsonEntity);
-//		communicatorService.sendSms(rawJsonEntity);
 		
-		System.err.println(
-				String.format("rawJsonEntity %s", rawJsonEntity.getRawJson()));
+
 		try {
-			return new ResponseEntity<>(rawJsonRepo.save(rawJsonEntity), HttpStatus.I_AM_A_TEAPOT);
+			CustomerOrder customer = new CustomerOrder(jsonObject.getJSONObject("content"));
+			communicatorService.createCustomer(customer);
+//			communicatorService.createInvoice(customer);
+//			communicatorService.sendSms(customer);
+
+			return new ResponseEntity<>(HttpStatus.OK);
 		} catch (Exception e) {
 			System.err.println(e.getMessage());
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -39,7 +44,7 @@ public class RawJsonController {
 	}
 	
 	@PutMapping("/ssa")
-	public ResponseEntity<String> save( @RequestBody Customer customer) {
+	public ResponseEntity<String> save( @RequestBody CustomerOrder customer) {
 	
 		try {
 			//communicatorService.createCustomer(customer);

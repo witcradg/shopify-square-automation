@@ -14,7 +14,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import io.witcradg.shopifysquareapi.entity.Customer;
+import io.witcradg.shopifysquareapi.entity.CustomerOrder;
 
 @Service
 public class CommunicatorServiceImpl implements ICommunicatorService {
@@ -32,7 +32,7 @@ public class CommunicatorServiceImpl implements ICommunicatorService {
 	
 	
 	@Override
-	public void createCustomer(Customer customer) {
+	public void createCustomer(CustomerOrder customer) {
 
 		System.out.println("createCustomer: " + customer.toString() + " \n\n");		
 
@@ -41,7 +41,12 @@ public class CommunicatorServiceImpl implements ICommunicatorService {
 	    addressObject.put("address_line_1", customer.getAddressLine1());
 	    addressObject.put("address_line_2", customer.getAddressLine2());
 	    addressObject.put("address_line_3", customer.getAddressLine3());
-				
+	    addressObject.put("administrative_district_level_1", customer.getCity());
+	    addressObject.put("administrative_district_level_2", customer.getState());
+	    //addressObject.put("administrative_district_level_3", "level3");
+	    addressObject.put("country", "US");
+		addressObject.put("postal_code", customer.getPostalCode());
+	    
 	    JSONObject requestBody = new JSONObject();
 	    requestBody.put("company_name", customer.getCompanyName());
 		requestBody.put("email_address", customer.getEmailAddress());
@@ -53,7 +58,8 @@ public class CommunicatorServiceImpl implements ICommunicatorService {
 		requestBody.put("address", addressObject);
 
 	    HttpEntity<String> request = new HttpEntity<String>(requestBody.toString(), headers);
-		
+		System.out.println("request: \n" + request+"\n");
+
 		String response = restTemplate.postForObject(CUSTOMER_URL, request, String.class);		
 		System.out.println("response: \n" + response+"\n");
 		
@@ -68,7 +74,7 @@ public class CommunicatorServiceImpl implements ICommunicatorService {
 	}
 	
 	@Override
-	public void createOrder(Customer customer) {
+	public void createOrder(CustomerOrder customer) {
 		System.out.println("createOrder: " + customer.toString() + " \n\n");		
 	    JSONObject requestBody = new JSONObject();
 		requestBody.put("idempotency_key", UUID.randomUUID().toString());
@@ -90,12 +96,12 @@ public class CommunicatorServiceImpl implements ICommunicatorService {
 	}
 
 	@Override
-	public void createInvoice(Customer customer) {
+	public void createInvoice(CustomerOrder customer) {
 		System.out.println("createInvoice: " + customer.toString() + " \n\n");	
 	    JSONObject invoiceObject = new JSONObject();
 	    invoiceObject.put("description", "some description line");
-	    invoiceObject.put("order_number", customer.getOrderNumber());	
-	    invoiceObject.put("order_total", customer.getOrderTotal());	
+	    invoiceObject.put("order_number", customer.getInvoiceNumber());	
+	    invoiceObject.put("order_total", customer.getInvoiceTotal());	
 	    invoiceObject.put("idempotency_key", UUID.randomUUID().toString());
 
 	    JSONObject requestBody = new JSONObject();
@@ -105,7 +111,7 @@ public class CommunicatorServiceImpl implements ICommunicatorService {
 	}
 
 	@Override
-	public void sendSms(Customer customer) {
+	public void sendSms(CustomerOrder customer) {
 		System.out.println("running sendSms stub: " + customer + " \n\n");
 	}
 }
