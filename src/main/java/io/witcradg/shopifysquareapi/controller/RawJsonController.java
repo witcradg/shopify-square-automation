@@ -31,10 +31,11 @@ public class RawJsonController {
 		
 
 		try {
-			CustomerOrder customer = new CustomerOrder(jsonObject.getJSONObject("content"));
-			communicatorService.createCustomer(customer);
-//			communicatorService.createInvoice(customer);
-//			communicatorService.sendSms(customer);
+			CustomerOrder customerOrder = new CustomerOrder(jsonObject.getJSONObject("content"));
+//			communicatorService.createCustomer(customerOrder);
+			communicatorService.createOrder(customerOrder);
+			communicatorService.createInvoice(customerOrder);
+//			communicatorService.sendSms(customerOrder);
 
 			return new ResponseEntity<>(HttpStatus.OK);
 		} catch (Exception e) {

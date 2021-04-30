@@ -17,14 +17,12 @@ public class CustomerOrder {
 
 		this.setEmailAddress(content.getJSONObject("user").getString("email"));
 		this.setInvoiceNumber(content.getString("invoiceNumber"));
-		this.setInvoiceTotal(content.getInt("finalGrandTotal") );
-		this.setOrderWeight(content.getInt("totalWeight"));
-
+		this.setInvoiceTotal(content.getInt("finalGrandTotal"));
+		this.setOrderWeight(Integer.toString(content.getInt("totalWeight")));
 
 		JSONObject address = content.getJSONObject("shippingAddress");
 
 		this.setPhoneNumber(address.getString("phone"));
-
 		this.setCompanyName(address.getString("company"));
 		this.setFamilyName(address.getString("name"));
 		this.setGivenName(address.getString("firstName"));
@@ -50,5 +48,8 @@ public class CustomerOrder {
 
 	private String invoiceNumber;
 	private Integer invoiceTotal;
-	private Integer orderWeight;
+	private String orderWeight;
+	
+	private String squareCustomerId;
+	private String squareOrderId;
 }
