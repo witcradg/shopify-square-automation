@@ -33,7 +33,7 @@ public class RawJsonController {
 		try {
 			CustomerOrder customerOrder = new CustomerOrder(jsonObject.getJSONObject("content"));
 //			communicatorService.createCustomer(customerOrder);
-			communicatorService.createOrder(customerOrder);
+//			communicatorService.createOrder(customerOrder);
 			communicatorService.createInvoice(customerOrder);
 //			communicatorService.sendSms(customerOrder);
 

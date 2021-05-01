@@ -11,14 +11,17 @@ import lombok.ToString;
 @ToString
 public class CustomerOrder {
 	
+
 	public CustomerOrder(JSONObject content) throws Exception {
 		
 		System.out.println("Customer constructor" + content.getJSONObject("user"));
 
 		this.setEmailAddress(content.getJSONObject("user").getString("email"));
-		this.setInvoiceNumber(content.getString("invoiceNumber"));
-		this.setInvoiceTotal(content.getInt("finalGrandTotal"));
-		this.setOrderWeight(Integer.toString(content.getInt("totalWeight")));
+		this.setScInvoiceNumber(content.getString("invoiceNumber"));
+		this.setScInvoiceTotal(content.getInt("finalGrandTotal"));
+		this.setScOrderWeight(Integer.toString(content.getInt("totalWeight")));
+		this.setScOrderDate(content.getString("completionDate"));
+		System.out.println("order date: " + this.getScOrderDate());
 
 		JSONObject address = content.getJSONObject("shippingAddress");
 
@@ -46,10 +49,12 @@ public class CustomerOrder {
 	private String state;
 	private String postalCode;
 
-	private String invoiceNumber;
-	private Integer invoiceTotal;
-	private String orderWeight;
+	private String scInvoiceNumber;//sc - snip cart
+	private Integer scInvoiceTotal;
+	private String scOrderWeight;
+	private String scOrderDate;
 	
-	private String squareCustomerId;
-	private String squareOrderId;
+	private String sqCustomerId;//sq - square
+	private String sqOrderId;
+	private String sqInvoiceId;
 }
