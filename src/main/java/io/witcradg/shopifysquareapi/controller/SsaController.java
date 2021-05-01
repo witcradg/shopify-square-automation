@@ -12,15 +12,12 @@ import io.witcradg.shopifysquareapi.entity.CustomerOrder;
 import io.witcradg.shopifysquareapi.service.ICommunicatorService;
 
 @RestController
-public class RawJsonController {
-
-//	@Autowired
-//	IRawJsonRepository rawJsonRepo;
+public class SsaController {
 
 	@Autowired
 	ICommunicatorService communicatorService;
 
-	@PostMapping("/cart")
+	@PostMapping("/ssa")
 	public ResponseEntity<HttpStatus> save(@RequestBody String rawJson) {
 
 		JSONObject jsonObject = new JSONObject(rawJson);
