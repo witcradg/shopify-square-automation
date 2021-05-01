@@ -21,10 +21,8 @@ public class CustomerOrder {
 		this.setScInvoiceTotal(content.getInt("finalGrandTotal"));
 		this.setScOrderWeight(Integer.toString(content.getInt("totalWeight")));
 		this.setScOrderDate(content.getString("completionDate"));
-		System.out.println("order date: " + this.getScOrderDate());
 
 		JSONObject address = content.getJSONObject("shippingAddress");
-
 		this.setPhoneNumber(address.getString("phone"));
 		this.setCompanyName(address.getString("company"));
 		this.setFamilyName(address.getString("name"));
@@ -57,4 +55,5 @@ public class CustomerOrder {
 	private String sqCustomerId;//sq - square
 	private String sqOrderId;
 	private String sqInvoiceId;
+	private Integer sqInvoiceVersion;
 }
