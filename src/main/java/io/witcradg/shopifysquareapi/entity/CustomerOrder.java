@@ -5,16 +5,17 @@ import org.json.JSONObject;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import lombok.extern.log4j.Log4j2;
 
+@Log4j2
 @Setter
 @Getter
 @ToString
 public class CustomerOrder {
 	
-
 	public CustomerOrder(JSONObject content) throws Exception {
-		
-		System.out.println("Customer constructor" + content.getJSONObject("user"));
+		System.out.println("inside constructor");
+		log.debug("Customer constructor" + content.getJSONObject("user"));
 
 		this.setEmailAddress(content.getJSONObject("user").getString("email"));
 		this.setScInvoiceNumber(content.getString("invoiceNumber"));
