@@ -38,7 +38,7 @@ public class CommunicatorServiceImpl implements ICommunicatorService {
 	@Override
 	public void createCustomer(CustomerOrder customerOrder) throws Exception {
 
-		log.debug("createCustomer: ", customerOrder.toString());
+		log.debug("createCustomer: " + customerOrder.toString());
 
 		JSONObject addressObject = new JSONObject();
 		addressObject.put("address_line_1", customerOrder.getAddressLine1());
@@ -61,20 +61,20 @@ public class CommunicatorServiceImpl implements ICommunicatorService {
 		requestBody.put("address", addressObject);
 
 		HttpEntity<String> request = new HttpEntity<String>(requestBody.toString(), headers);
-		log.debug("request: ", request);
+		log.debug("request: " + request);
 
 		String response = restTemplate.postForObject(CUSTOMER_URL, request, String.class);
-		log.debug("response: ", response);
+		log.debug("response: " + response);
 
 		JSONObject responseCustomer = new JSONObject(response);
 		String id = responseCustomer.getJSONObject("customer").getString("id");
-		log.debug("responseCustomer id: ", id);
+		log.debug("responseCustomer id: " + id);
 		customerOrder.setSqCustomerId(id);
 	}
 
 	@Override
 	public void createOrder(CustomerOrder customerOrder) throws Exception {
-		log.debug("createOrder: ", customerOrder.toString());
+		log.debug("createOrder: " + customerOrder.toString());
 
 		JSONObject basePriceMoney = new JSONObject();
 		basePriceMoney.put("amount", customerOrder.getScInvoiceTotal());
@@ -102,13 +102,13 @@ public class CommunicatorServiceImpl implements ICommunicatorService {
 
 		JSONObject responseOrder = new JSONObject(response);
 		String id = responseOrder.getJSONObject("order").getString("id");
-		log.debug(" responseOrder id: ", id);
+		log.debug(" responseOrder id: " + id);
 		customerOrder.setSqOrderId(id);
 	}
 
 	@Override
 	public void createInvoice(CustomerOrder customerOrder) {
-		log.debug("createInvoice: ", customerOrder.toString());
+		log.debug("createInvoice: " + customerOrder.toString());
 		
 		JSONObject primaryRecipient = new JSONObject();
 		primaryRecipient.put("customer_id", customerOrder.getSqCustomerId());
@@ -142,11 +142,11 @@ public class CommunicatorServiceImpl implements ICommunicatorService {
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'").withZone( ZoneId.of("UTC"));
 		String scheduledAt = formatter.format(scheduledInstant);
 
-		log.debug("scheduled_at: ", scheduledAt);
+		log.debug("scheduled_at: " + scheduledAt);
 		invoiceObject.put("scheduled_at", scheduledAt);
 		
 		String dueDate = scheduledInstant.toString().substring(0,10);
-		log.debug("due_date: ", dueDate);
+		log.debug("due_date: " + dueDate);
 		paymentRequest.put("due_date", dueDate);
 		
 		invoiceObject.put("primary_recipient",primaryRecipient);
@@ -159,31 +159,31 @@ public class CommunicatorServiceImpl implements ICommunicatorService {
 		log.debug("request: \n", request + "\n");
 		
 		String response = restTemplate.postForObject(INVOICE_URL, request, String.class);
-		log.debug("response: \n", response);
+		log.debug("response: \n" + response);
 
 		JSONObject responseInvoice = new JSONObject(response);
 		JSONObject invoice = responseInvoice.getJSONObject("invoice");
 		String id = invoice.getString("id");
 		int version = invoice.getInt("version");
-		log.debug("invoice id: ", id);
-		log.debug("invoice version: ", version);
+		log.debug("invoice id: " + id);
+		log.debug("invoice version: " + version);
 		customerOrder.setSqInvoiceId(id);
 		customerOrder.setSqInvoiceVersion(version);
 	}
 	
 	@Override
 	public void publishInvoice(CustomerOrder customerOrder) {
-		log.debug("running publishInvoice stub: ", customerOrder);
+		log.debug("running publishInvoice stub: " + customerOrder);
 		
 		JSONObject requestBody = new JSONObject();
 		requestBody.put("idempotency_key", UUID.randomUUID().toString());
 		requestBody.put("version", customerOrder.getSqInvoiceVersion().intValue());
 		
 		HttpEntity<String> request = new HttpEntity<String>(requestBody.toString(), headers);
-		log.debug("request: ", request);
+		log.debug("request: " + request);
 		String publishURL = String.format(PUBLISH_INVOICE_URL, customerOrder.getSqInvoiceId());
 		String response = restTemplate.postForObject(publishURL, request, String.class);
-		log.debug("response publish invoice: ", response);
+		log.debug("response publish invoice: " + response);
 	}
 
 	@Override

@@ -27,9 +27,9 @@ public class SsaController {
 	@PostMapping("/ssa")
 	public ResponseEntity<HttpStatus> save(@RequestBody String rawJson) {
 
-		JSONObject jsonObject = new JSONObject(rawJson);
-
 		try {
+			JSONObject jsonObject = new JSONObject(rawJson);
+
 			CustomerOrder customerOrder = new CustomerOrder(jsonObject.getJSONObject("content"));
 			communicatorService.createCustomer(customerOrder);
 			communicatorService.createOrder(customerOrder);
@@ -40,7 +40,7 @@ public class SsaController {
 			return new ResponseEntity<>(HttpStatus.OK);
 		} catch (Exception e) {
 			log.error(e.getMessage());
-			log.error("DUMP: " , rawJson);
+			log.error("rawJson: " + rawJson);
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
@@ -48,19 +48,19 @@ public class SsaController {
 	@RequestMapping(value = "**")
 	public ResponseEntity<HttpStatus> error(HttpServletRequest request) {
 		log.error("ERROR: Invalid request received");
-		
+
 		dumpRequest(request);
 
 		return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 	}
-	
+
 	private void dumpRequest(HttpServletRequest request) {
 		log.error("    status_code: " + request.getAttribute("javax.servlet.error.status_code"));
 		Exception exception = (Exception) request.getAttribute("javax.servlet.error.exception");
 		if (exception != null) {
 			log.error("    exception: " + exception.getMessage());
 		}
-		log.error("    Request URL: "+ request.getRequestURL());
+		log.error("    Request URL: " + request.getRequestURL());
 
 		try {
 			log.error(request.getReader().lines().collect(Collectors.joining(System.lineSeparator())));

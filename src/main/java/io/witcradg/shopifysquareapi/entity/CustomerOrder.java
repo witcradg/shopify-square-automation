@@ -12,10 +12,10 @@ import lombok.extern.log4j.Log4j2;
 @Getter
 @ToString
 public class CustomerOrder {
-	
+
 	public CustomerOrder(JSONObject content) throws Exception {
-		System.out.println("inside constructor");
-		log.debug("Customer constructor", content.getJSONObject("user"));
+
+		log.debug("Customer constructor: " + content.getJSONObject("user"));
 
 		this.setEmailAddress(content.getJSONObject("user").getString("email"));
 		this.setScInvoiceNumber(content.getString("invoiceNumber"));
@@ -25,7 +25,7 @@ public class CustomerOrder {
 
 		JSONObject address = content.getJSONObject("shippingAddress");
 		this.setPhoneNumber(address.getString("phone"));
-		//this.setCompanyName(address.getString("company"));
+		// this.setCompanyName(address.getString("company"));
 		this.setFamilyName(address.getString("name"));
 		this.setGivenName(address.getString("firstName"));
 		this.setAddressLine1(address.getString("address1"));
@@ -48,12 +48,12 @@ public class CustomerOrder {
 	private String state;
 	private String postalCode;
 
-	private String scInvoiceNumber;//sc - snip cart
+	private String scInvoiceNumber;// sc - snip cart
 	private Integer scInvoiceTotal;
 	private String scOrderWeight;
 	private String scOrderDate;
-	
-	private String sqCustomerId;//sq - square
+
+	private String sqCustomerId;// sq - square
 	private String sqOrderId;
 	private String sqInvoiceId;
 	private Integer sqInvoiceVersion;
