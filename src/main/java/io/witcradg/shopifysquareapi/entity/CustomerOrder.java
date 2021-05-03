@@ -15,7 +15,7 @@ public class CustomerOrder {
 
 	public CustomerOrder(JSONObject content) throws Exception {
 
-		log.debug("Customer constructor: " + content.getJSONObject("user"));
+		log.debug("Customer constructor:", content.getJSONObject("user"));
 
 		this.setEmailAddress(content.getJSONObject("user").getString("email"));
 		this.setScInvoiceNumber(content.getString("invoiceNumber"));
@@ -27,7 +27,8 @@ public class CustomerOrder {
 		this.setPhoneNumber(address.getString("phone"));
 		// this.setCompanyName(address.getString("company"));
 		this.setFamilyName(address.getString("name"));
-		this.setGivenName(address.getString("firstName"));
+		String fname = address.isNull("firstName") ? "" : address.getString("firstName"); 
+		this.setGivenName(address.isNull("firstName") ? "" : address.getString("firstName"));
 		this.setAddressLine1(address.getString("address1"));
 		this.setAddressLine2(address.getString("address2"));
 		this.setCity(address.getString("city"));

@@ -30,19 +30,22 @@ public class SsaController {
 		try {
 			JSONObject jsonObject = new JSONObject(rawJson);
 
-			CustomerOrder customerOrder = new CustomerOrder(jsonObject.getJSONObject("content"));
-			communicatorService.createCustomer(customerOrder);
-			communicatorService.createOrder(customerOrder);
-			communicatorService.createInvoice(customerOrder);
-			communicatorService.publishInvoice(customerOrder);
-			communicatorService.sendSms(customerOrder);
+			if ("order.completed".equals(jsonObject.getString("eventName"))) {
 
+				CustomerOrder customerOrder = new CustomerOrder(jsonObject.getJSONObject("content"));
+				communicatorService.createCustomer(customerOrder);
+				communicatorService.createOrder(customerOrder);
+				communicatorService.createInvoice(customerOrder);
+				communicatorService.publishInvoice(customerOrder);
+				communicatorService.sendSms(customerOrder);
+			}
 			return new ResponseEntity<>(HttpStatus.OK);
 		} catch (Exception e) {
 			log.error(e.getMessage());
 			log.error("rawJson: " + rawJson);
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
+
 	}
 
 	@RequestMapping(value = "**")
