@@ -7,8 +7,11 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.UUID;
 
+import javax.annotation.PostConstruct;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -22,22 +25,28 @@ import lombok.extern.log4j.Log4j2;
 @Service
 public class CommunicatorServiceImpl implements ICommunicatorService {
 
-	private static final String CUSTOMER_URL = "https://connect.squareupsandbox.com/v2/customers";
-	private static final String ORDER_URL = "https://connect.squareupsandbox.com/v2/orders";
-	private static final String INVOICE_URL = "https://connect.squareupsandbox.com/v2/invoices";
-	private static final String PUBLISH_INVOICE_URL = "https://connect.squareupsandbox.com/v2/invoices/%s/publish";
-
+	@Value("${configuration.square.url}")
+	private String url_base;
+	
+	@Value("${configuration.square.access}")
+	private String auth;
+	
+	@Value("${configuration.square.location}")
+	private String location;
+	
 	private RestTemplate restTemplate = new RestTemplate();
 	private HttpHeaders headers = new HttpHeaders();
-	{
-		headers.add("Square-Version", "2021-04-21");
-		headers.add("Authorization", "Bearer EAAAEDtqOqiRL-XbBm_RjAG4Nns-CBJbpmC4CmeIzO-35KQ-LyUymZYzvlg7dJh1"); // TODO
+
+	@PostConstruct
+	private void loadHeaders() {
+		headers.add("Square-Version", "2021-04-21");		
+		headers.add("Authorization", "Bearer "+ auth);
 		headers.setContentType(MediaType.APPLICATION_JSON);
 	}
-
+	
 	@Override
 	public void createCustomer(CustomerOrder customerOrder) throws Exception {
-
+		
 		log.debug("createCustomer: " + customerOrder.toString());
 
 		JSONObject addressObject = new JSONObject();
@@ -63,7 +72,7 @@ public class CommunicatorServiceImpl implements ICommunicatorService {
 		HttpEntity<String> request = new HttpEntity<String>(requestBody.toString(), headers);
 		log.debug("request: " + request);
 
-		String response = restTemplate.postForObject(CUSTOMER_URL, request, String.class);
+		String response = restTemplate.postForObject(url_base+"/customers", request, String.class);
 		log.debug("response: " + response);
 
 		JSONObject responseCustomer = new JSONObject(response);
@@ -98,7 +107,7 @@ public class CommunicatorServiceImpl implements ICommunicatorService {
 
 		HttpEntity<String> request = new HttpEntity<String>(requestBody.toString(), headers);
 
-		String response = restTemplate.postForObject(ORDER_URL, request, String.class);
+		String response = restTemplate.postForObject(url_base+"/orders", request, String.class);
 
 		JSONObject responseOrder = new JSONObject(response);
 		String id = responseOrder.getJSONObject("order").getString("id");
@@ -158,7 +167,7 @@ public class CommunicatorServiceImpl implements ICommunicatorService {
 		HttpEntity<String> request = new HttpEntity<String>(requestBody.toString(), headers);
 		log.debug("request: \n", request + "\n");
 		
-		String response = restTemplate.postForObject(INVOICE_URL, request, String.class);
+		String response = restTemplate.postForObject(url_base+"/invoices", request, String.class);
 		log.debug("response: \n" + response);
 
 		JSONObject responseInvoice = new JSONObject(response);
@@ -181,7 +190,7 @@ public class CommunicatorServiceImpl implements ICommunicatorService {
 		
 		HttpEntity<String> request = new HttpEntity<String>(requestBody.toString(), headers);
 		log.debug("request: " + request);
-		String publishURL = String.format(PUBLISH_INVOICE_URL, customerOrder.getSqInvoiceId());
+		String publishURL = String.format(url_base+"/invoices/%s/publish", customerOrder.getSqInvoiceId());
 		String response = restTemplate.postForObject(publishURL, request, String.class);
 		log.debug("response publish invoice: " + response);
 	}

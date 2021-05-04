@@ -1,0 +1,17 @@
+{"properties": [
+  {
+    "name": "configuration.square.access",
+    "type": "java.lang.String",
+    "description": "A description for 'configuration.square.access'"
+  },
+  {
+    "name": "configuration.square.location",
+    "type": "java.lang.String",
+    "description": "A description for 'configuration.square.location'"
+  },
+  {
+    "name": "configuration.square.url",
+    "type": "java.lang.String",
+    "description": "A description for 'configuration.square.url'"
+  }
+]}
