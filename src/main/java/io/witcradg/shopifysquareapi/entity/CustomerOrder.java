@@ -19,7 +19,7 @@ public class CustomerOrder {
 
 		this.setEmailAddress(content.getJSONObject("user").getString("email"));
 		this.setScInvoiceNumber(content.getString("invoiceNumber"));
-		this.setScInvoiceTotal(content.getInt("finalGrandTotal"));
+		this.setScInvoiceTotal((int) (content.getDouble("finalGrandTotal")*100));
 		this.setScOrderWeight(Integer.toString(content.getInt("totalWeight")));
 		this.setScOrderDate(content.getString("completionDate"));
 
@@ -27,7 +27,6 @@ public class CustomerOrder {
 		this.setPhoneNumber(address.getString("phone"));
 		// this.setCompanyName(address.getString("company"));
 		this.setFamilyName(address.getString("name"));
-		String fname = address.isNull("firstName") ? "" : address.getString("firstName"); 
 		this.setGivenName(address.isNull("firstName") ? "" : address.getString("firstName"));
 		this.setAddressLine1(address.getString("address1"));
 		this.setAddressLine2(address.getString("address2"));
