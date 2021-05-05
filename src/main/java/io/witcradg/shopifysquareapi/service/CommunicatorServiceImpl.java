@@ -166,7 +166,7 @@ public class CommunicatorServiceImpl implements ICommunicatorService {
 		requestBody.put("invoice", invoiceObject);
 	
 		HttpEntity<String> request = new HttpEntity<String>(requestBody.toString(), headers);
-		log.debug("request: \n", request.getBody() + "\n");
+		log.debug("request: " + request.getBody());
 		
 		String response = restTemplate.postForObject(url_base+"/invoices", request, String.class);
 		log.debug("response: \n" + response);

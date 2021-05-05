@@ -1,5 +1,6 @@
 package io.witcradg.shopifysquareapi.controller;
 
+import java.util.Enumeration;
 import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
@@ -58,13 +59,21 @@ public class SsaController {
 	}
 
 	private void dumpRequest(HttpServletRequest request) {
-		log.error("    status_code: " + request.getAttribute("javax.servlet.error.status_code"));
 		Exception exception = (Exception) request.getAttribute("javax.servlet.error.exception");
 		if (exception != null) {
 			log.error("    exception: " + exception.getMessage());
 		}
 		log.error("    Request URL: " + request.getRequestURL());
 
+		StringBuffer headers = new StringBuffer();
+        Enumeration<String> headerNames = request.getHeaderNames();
+        while (headerNames.hasMoreElements()) {
+            String key = (String) headerNames.nextElement();
+            String value = request.getHeader(key);
+            headers.append(key +":"+ value +",");
+        }
+        log.error("headers" + headers );
+		
 		try {
 			log.error(request.getReader().lines().collect(Collectors.joining(System.lineSeparator())));
 		} catch (Exception e) {

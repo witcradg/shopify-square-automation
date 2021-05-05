@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration
+	xmlns="http://logging.apache.org/log4j/2.0/config">
+	<Appenders>
+		<RollingFile name="roll-by-time" fileName="logs/app.log"
+			filePattern="logs/$${date:yyyy-MM-dd}/app-%d{MM-dd-yyyy}-%i.log.gz">
+			ignoreExceptions="false">
+			<PatternLayout>
+				<Pattern>%d{yyyy-MM-dd HH:mm:ss} %p %m%n</Pattern>
+			</PatternLayout>
+			<TimeBasedTriggeringPolicy />
+		</RollingFile>
+		<Async name="Async">
+			<AppenderRef ref="roll-by-time" />
+		</Async>
+	</Appenders>
+	<Loggers>
+		<Logger name="io.witcradg.shopifysquareapi" level="debug" />
+		<Root level="info">
+			<AppenderRef ref="roll-by-time" />
+		</Root>
+	</Loggers>
+</Configuration>
