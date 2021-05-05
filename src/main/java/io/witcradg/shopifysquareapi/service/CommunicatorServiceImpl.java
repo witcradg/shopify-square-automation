@@ -70,7 +70,7 @@ public class CommunicatorServiceImpl implements ICommunicatorService {
 		requestBody.put("address", addressObject);
 
 		HttpEntity<String> request = new HttpEntity<String>(requestBody.toString(), headers);
-		log.debug("request: " + request);
+		log.debug("request: " + request.getBody());
 
 		String response = restTemplate.postForObject(url_base+"/customers", request, String.class);
 		log.debug("response: " + response);
@@ -98,7 +98,7 @@ public class CommunicatorServiceImpl implements ICommunicatorService {
 		lineItemArray.add(lineItem);
 
 		JSONObject order = new JSONObject();
-		order.put("location_id", "LGWCV6JAAE6JV");
+		order.put("location_id", location);
 		order.put("line_items", lineItemArray);
 
 		JSONObject requestBody = new JSONObject();
@@ -106,7 +106,8 @@ public class CommunicatorServiceImpl implements ICommunicatorService {
 		requestBody.put("order", order);
 
 		HttpEntity<String> request = new HttpEntity<String>(requestBody.toString(), headers);
-
+		log.debug("request: " + request.getBody());
+		
 		String response = restTemplate.postForObject(url_base+"/orders", request, String.class);
 
 		JSONObject responseOrder = new JSONObject(response);
@@ -139,7 +140,7 @@ public class CommunicatorServiceImpl implements ICommunicatorService {
 		invoiceObject.put("accepted_payment_methods", acceptedPaymentMethods);
 		invoiceObject.put("delivery_method", "SHARE_MANUALLY");
 		invoiceObject.put("invoice_number", customerOrder.getScInvoiceNumber());
-		invoiceObject.put("location_id", "LGWCV6JAAE6JV");
+		invoiceObject.put("location_id", location);
 		invoiceObject.put("order_id", customerOrder.getSqOrderId());
 		invoiceObject.put("payment_requests", paymentRequests);
 
@@ -165,7 +166,7 @@ public class CommunicatorServiceImpl implements ICommunicatorService {
 		requestBody.put("invoice", invoiceObject);
 	
 		HttpEntity<String> request = new HttpEntity<String>(requestBody.toString(), headers);
-		log.debug("request: \n", request + "\n");
+		log.debug("request: \n", request.getBody() + "\n");
 		
 		String response = restTemplate.postForObject(url_base+"/invoices", request, String.class);
 		log.debug("response: \n" + response);
@@ -189,7 +190,7 @@ public class CommunicatorServiceImpl implements ICommunicatorService {
 		requestBody.put("version", customerOrder.getSqInvoiceVersion().intValue());
 		
 		HttpEntity<String> request = new HttpEntity<String>(requestBody.toString(), headers);
-		log.debug("request: " + request);
+		log.debug("request: " + request.getBody());
 		String publishURL = String.format(url_base+"/invoices/%s/publish", customerOrder.getSqInvoiceId());
 		String response = restTemplate.postForObject(publishURL, request, String.class);
 		log.debug("response publish invoice: " + response);
