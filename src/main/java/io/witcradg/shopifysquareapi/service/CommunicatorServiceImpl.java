@@ -34,6 +34,9 @@ public class CommunicatorServiceImpl implements ICommunicatorService {
 	@Value("${configuration.square.location}")
 	private String location;
 	
+	@Value("${configuration.square.delivery}")
+	private String delivery;
+	
 	private RestTemplate restTemplate = new RestTemplate();
 	private HttpHeaders headers = new HttpHeaders();
 
@@ -138,7 +141,7 @@ public class CommunicatorServiceImpl implements ICommunicatorService {
 		
 		JSONObject invoiceObject = new JSONObject();
 		invoiceObject.put("accepted_payment_methods", acceptedPaymentMethods);
-		invoiceObject.put("delivery_method", "SHARE_MANUALLY");
+		invoiceObject.put("delivery_method", delivery);
 		invoiceObject.put("invoice_number", customerOrder.getScInvoiceNumber());
 		invoiceObject.put("location_id", location);
 		invoiceObject.put("order_id", customerOrder.getSqOrderId());
