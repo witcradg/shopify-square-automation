@@ -21,6 +21,10 @@ import org.springframework.web.client.RestTemplate;
 import io.witcradg.shopifysquareapi.entity.CustomerOrder;
 import lombok.extern.log4j.Log4j2;
 
+import com.twilio.Twilio;
+import com.twilio.rest.api.v2010.account.Message;
+import com.twilio.type.PhoneNumber;
+
 @Log4j2
 @Service
 public class CommunicatorServiceImpl implements ICommunicatorService {
@@ -37,6 +41,15 @@ public class CommunicatorServiceImpl implements ICommunicatorService {
 	@Value("${configuration.square.delivery}")
 	private String delivery;
 	
+	@Value("${twilio.account.sid}")
+	private String twilioSid;
+	
+	@Value("${twilio.auth.token}")
+	private String twilioAuthToken;
+	
+	@Value("${twilio.phone.number}")
+	private String twilioPhoneNumber;
+		
 	private RestTemplate restTemplate = new RestTemplate();
 	private HttpHeaders headers = new HttpHeaders();
 
@@ -186,7 +199,7 @@ public class CommunicatorServiceImpl implements ICommunicatorService {
 	
 	@Override
 	public void publishInvoice(CustomerOrder customerOrder) {
-		log.debug("running publishInvoice stub: " + customerOrder);
+		log.debug("running publishInvoice: " + customerOrder);
 		
 		JSONObject requestBody = new JSONObject();
 		requestBody.put("idempotency_key", UUID.randomUUID().toString());
@@ -197,10 +210,54 @@ public class CommunicatorServiceImpl implements ICommunicatorService {
 		String publishURL = String.format(url_base+"/invoices/%s/publish", customerOrder.getSqInvoiceId());
 		String response = restTemplate.postForObject(publishURL, request, String.class);
 		log.debug("response publish invoice: " + response);
+		customerOrder.setPaymentURL(publishURL);
 	}
 
 	@Override
-	public void sendSms(CustomerOrder customerOrder) {
-		log.info("running sendSms stub");
+	public void sendSms(CustomerOrder customerOrder) throws InvalidPhoneNumberException {
+		log.debug("running sendSms: " + customerOrder);
+
+		String str = customerOrder.getPhoneNumber();
+
+		StringBuilder stringBuilder = new StringBuilder();
+
+		for (char dig : str.toCharArray()) {
+		    if (Character.isDigit(dig)) 
+		    {
+		    	stringBuilder.append(dig);
+		    }
+		}
+		
+		String tmp = stringBuilder.toString();
+		
+		if (tmp.length() == 10 ) {
+			stringBuilder.insert(0, "+1");
+		} else if (tmp.length() == 11 && tmp.startsWith("1")) {
+			stringBuilder.insert(0, '+');
+		} else if (tmp.length() != 12 || !tmp.startsWith("+1")) {
+			log.info("invalid phone number " + customerOrder.getPhoneNumber() );
+			throw new InvalidPhoneNumberException(customerOrder.getPhoneNumber());
+		}
+		
+		log.info("value used: " + stringBuilder.toString());
+
+		String sendTo = stringBuilder.toString();
+		log.info("sendTo: " + sendTo);
+		
+		customerOrder.setPaymentURL("https://www.witcraft.io");		
+				
+		String messageContent = String.format(
+				"Thank You for your Order on Delta8gummies.com. Use this link to Complete Your Purchase: %s", 
+				customerOrder.getPaymentURL());
+		
+		Twilio.init(twilioSid, twilioAuthToken);
+		
+		Message message = Message.creator(
+				new PhoneNumber(sendTo), 
+				new PhoneNumber(twilioPhoneNumber), 
+				messageContent)
+				.create();
+		
+		log.info("twilio message sid: " + message.getSid() );
 	}
 }

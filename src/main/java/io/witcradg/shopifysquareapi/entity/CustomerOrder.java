@@ -57,4 +57,5 @@ public class CustomerOrder {
 	private String sqOrderId;
 	private String sqInvoiceId;
 	private Integer sqInvoiceVersion;
+	private String  paymentURL;
 }

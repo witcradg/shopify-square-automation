@@ -51,8 +51,6 @@ public class SsaController {
 
 	@RequestMapping(value = "**")
 	public ResponseEntity<HttpStatus> error(HttpServletRequest request) {
-		log.error("ERROR: Invalid request received");
-
 		dumpRequest(request);
 
 		return new ResponseEntity<>(HttpStatus.NOT_FOUND);
