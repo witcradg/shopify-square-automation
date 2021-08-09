@@ -239,12 +239,8 @@ public class CommunicatorServiceImpl implements ICommunicatorService {
 			throw new InvalidPhoneNumberException(customerOrder.getPhoneNumber());
 		}
 		
-		log.info("value used: " + stringBuilder.toString());
-
 		String sendTo = stringBuilder.toString();
 		log.info("sendTo: " + sendTo);
-		
-		customerOrder.setPaymentURL("https://www.witcraft.io");		
 				
 		String messageContent = String.format(
 				"Thank You for your Order on Delta8gummies.com. Use this link to Complete Your Purchase: %s", 
