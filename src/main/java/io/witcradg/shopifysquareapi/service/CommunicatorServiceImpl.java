@@ -210,7 +210,23 @@ public class CommunicatorServiceImpl implements ICommunicatorService {
 		String publishURL = String.format(url_base+"/invoices/%s/publish", customerOrder.getSqInvoiceId());
 		String response = restTemplate.postForObject(publishURL, request, String.class);
 		log.debug("response publish invoice: " + response);
-		customerOrder.setPaymentURL(publishURL);
+		
+		// convert the response String to a json object
+		JSONObject responseInvoice = new JSONObject(response);
+		log.debug("responseInvoice: " + responseInvoice);
+		
+		// from the response object get the invoice
+		JSONObject invoiceObject = responseInvoice.getJSONObject("invoice");
+		log.debug("invoiceObject: " + invoiceObject);
+		
+//		String publicURL = invoiceObject.getString("public_url");
+//		log.debug("publicURL: " + publicURL);
+
+		//work-around
+		String publicURL = "https://squareup.com/pay-invoice/" + invoiceObject.getString("id");
+		log.debug("publicURL for setPaymentURL: " + publicURL);
+		
+		customerOrder.setPaymentURL(publicURL);
 	}
 
 	@Override

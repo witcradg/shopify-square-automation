@@ -38,7 +38,7 @@ public class SsaController {
 				communicatorService.createOrder(customerOrder);
 				communicatorService.createInvoice(customerOrder);
 				communicatorService.publishInvoice(customerOrder);
-//				communicatorService.sendSms(customerOrder);
+				communicatorService.sendSms(customerOrder);
 			}
 			return new ResponseEntity<>(HttpStatus.OK);
 		} catch (Exception e) {
