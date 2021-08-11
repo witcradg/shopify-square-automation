@@ -163,7 +163,7 @@ public class CommunicatorServiceImpl implements ICommunicatorService {
 		
 		//Date operations
 		
-		Instant scheduledInstant = Instant.now().plus(2, ChronoUnit.MINUTES);
+		Instant scheduledInstant = Instant.now().plus(1, ChronoUnit.MINUTES);
 		
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'").withZone( ZoneId.of("UTC"));
 		String scheduledAt = formatter.format(scheduledInstant);
