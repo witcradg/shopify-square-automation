@@ -259,7 +259,8 @@ public class CommunicatorServiceImpl implements ICommunicatorService {
 		log.info("sendTo: " + sendTo);
 				
 		String messageContent = String.format(
-				"Thank You for your Order on Delta8gummies.com. Use this link to Complete Your Purchase: %s", 
+				"Thank You for your Order on Delta8gummies.com. Use this link to Complete Your Purchase: %s " +
+				"**Be Advised It takes up to 2 minutes before you can Complete Your Payment**" , 
 				customerOrder.getPaymentURL());
 		
 		Twilio.init(twilioSid, twilioAuthToken);
