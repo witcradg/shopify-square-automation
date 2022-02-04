@@ -1,5 +1,6 @@
 package io.witcradg.shopifysquareapi.entity;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import lombok.Getter;
@@ -16,7 +17,7 @@ public class CustomerOrder {
 	public CustomerOrder(JSONObject content) throws Exception {
 
 		log.debug("Customer constructor:" + content.getJSONObject("user"));
-		
+
 		this.setEmailAddress(content.getJSONObject("user").getString("email"));
 		this.setScInvoiceNumber(content.getString("invoiceNumber"));
 		this.setScInvoiceTotal((int) (content.getDouble("finalGrandTotal")*100));
@@ -24,11 +25,13 @@ public class CustomerOrder {
 		this.setScOrderDate(content.getString("completionDate"));
 
 		JSONObject address = content.getJSONObject("shippingAddress");
+
+		this.setItems(content.getJSONArray("items"));
+		
 		// this.setPhoneNumber(address.getString("phone"));
-		JSONObject customFields = content.getJSONArray("customFields").getJSONObject(0);
-		this.setPhoneNumber(customFields.getString("value"));
 
 		// this.setCompanyName(address.getString("company"));
+		this.setFullName(address.getString("fullName"));
 		this.setFamilyName(address.getString("name"));
 		this.setGivenName(address.isNull("firstName") ? "" : address.getString("firstName"));
 		this.setAddressLine1(address.getString("address1"));
@@ -36,10 +39,14 @@ public class CustomerOrder {
 		this.setCity(address.getString("city"));
 		this.setState(address.getString("province"));
 		this.setPostalCode(address.getString("postalCode"));
+		this.setPhoneNumber(address.getString("phone"));
+		
+		this.setShippingTotal(content.getInt("shippingFees"));
 	}
 
 	private String companyName;
 	private String emailAddress;
+	private String fullName;
 	private String familyName;
 	private String givenName;
 	private String nickname;
@@ -50,9 +57,13 @@ public class CustomerOrder {
 	private String city;
 	private String state;
 	private String postalCode;
+	private Integer shippingTotal;
 
+	private JSONArray items;
+	
 	private String scInvoiceNumber;// sc - snip cart
 	private Integer scInvoiceTotal;
+	
 	private String scOrderWeight;
 	private String scOrderDate;
 

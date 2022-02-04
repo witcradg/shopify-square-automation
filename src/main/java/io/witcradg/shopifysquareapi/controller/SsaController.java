@@ -22,6 +22,9 @@ import lombok.extern.log4j.Log4j2;
 @RestController
 public class SsaController {
 
+	boolean useSquareApi = false; //disable unused code without deleting it
+	boolean useShipStationApi = true;
+	
 	@Autowired
 	ICommunicatorService communicatorService;
 
@@ -30,15 +33,22 @@ public class SsaController {
 
 		try {
 			JSONObject jsonObject = new JSONObject(rawJson);
-
 			if ("order.completed".equals(jsonObject.getString("eventName"))) {
-
-				CustomerOrder customerOrder = new CustomerOrder(jsonObject.getJSONObject("content"));
-				communicatorService.createCustomer(customerOrder);
-				communicatorService.createOrder(customerOrder);
-				communicatorService.createInvoice(customerOrder);
-				communicatorService.publishInvoice(customerOrder);
-				communicatorService.sendSms(customerOrder);
+//log.info("testpoint 1", rawJson);
+				JSONObject content = jsonObject.getJSONObject("content");
+				CustomerOrder customerOrder = new CustomerOrder(content);
+				if (useSquareApi) {
+					communicatorService.createCustomer(customerOrder);
+					communicatorService.createOrder(customerOrder);
+					communicatorService.createInvoice(customerOrder);
+					communicatorService.publishInvoice(customerOrder);
+					communicatorService.sendSms(customerOrder);
+				}
+				if (useShipStationApi) {
+					communicatorService.postShipStationOrder(customerOrder);
+					//communicatorService.getShipStationFulfillment("D8G-1198");
+					communicatorService.getShipStationOrder("TEST-0001");
+				}
 			}
 			return new ResponseEntity<>(HttpStatus.OK);
 		} catch (Exception e) {
@@ -46,7 +56,6 @@ public class SsaController {
 			log.error("rawJson: " + rawJson);
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
-
 	}
 
 	@RequestMapping(value = "**")

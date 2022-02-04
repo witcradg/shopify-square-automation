@@ -34,6 +34,17 @@
 			"name": "twilio.phone.number",
 			"type": "java.lang.String",
 			"description": "A description for twilio.phone.number"
+		},
+		{
+			"name": "shipstation.api.key",
+			"type": "java.lang.String",
+			"description": "A description for shipstation.api.key"
+		},
+				{
+			"name": "shipstation.api.secret",
+			"type": "java.lang.String",
+			"description": "A description for shipstation.api.secret"
 		}
+		
 	]
 }

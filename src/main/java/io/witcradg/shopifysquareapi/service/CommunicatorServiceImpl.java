@@ -1,10 +1,12 @@
 package io.witcradg.shopifysquareapi.service;
 
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.UUID;
 
 import javax.annotation.PostConstruct;
@@ -14,7 +16,9 @@ import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -49,15 +53,31 @@ public class CommunicatorServiceImpl implements ICommunicatorService {
 	
 	@Value("${twilio.phone.number}")
 	private String twilioPhoneNumber;
+	
+	@Value("${shipstation.api.key}")
+	private String shipstationApiKey;
+	
+	@Value("${shipstation.api.secret}")
+	private String shipstationApiSecret;
 		
 	private RestTemplate restTemplate = new RestTemplate();
 	private HttpHeaders headers = new HttpHeaders();
+	private HttpHeaders shipHeaders = new HttpHeaders();
+
 
 	@PostConstruct
-	private void loadHeaders() {
+	private void loadHeaders() throws Exception  {
 		headers.add("Square-Version", "2021-04-21");		
 		headers.add("Authorization", "Bearer "+ auth);
 		headers.setContentType(MediaType.APPLICATION_JSON);
+
+		String data= shipstationApiKey + ":" + shipstationApiSecret;
+	    String encodedStr = Base64.getEncoder()
+	            .encodeToString(data.getBytes(StandardCharsets.UTF_8.name()));
+    
+		shipHeaders.add("Authorization", "Basic " + encodedStr );
+		shipHeaders.setContentType(MediaType.APPLICATION_JSON);
+
 	}
 	
 	@Override
@@ -273,4 +293,133 @@ public class CommunicatorServiceImpl implements ICommunicatorService {
 		
 		log.info("twilio message sid: " + message.getSid() );
 	}
+	
+	/****************************************************************** 
+	 * SHIP STATION METHODS
+	 *******************************************************************/
+	
+	@Override
+	public void postShipStationOrder(CustomerOrder customerOrder) {
+		log.debug("shipHeaders: " + shipHeaders.toString());
+
+		String publishURL = String.format("https://ssapi.shipstation.com/orders/createorder");
+		log.debug("publishURL: " + publishURL);
+		
+		JSONObject body = createShipStationOrderBody(customerOrder);
+		log.debug("request body: " + body);
+
+		HttpEntity<String> requestEntity = new HttpEntity<String>(body.toString(), shipHeaders);
+		log.debug("requestEntity: " + requestEntity);
+		
+		String response = restTemplate.postForObject(publishURL, requestEntity, String.class);
+		
+		//String response = restTemplate.postForObject(publishURL, request, String.class);
+		log.debug("response get: " + response);
+		
+		// convert the response String to a JSON object
+		JSONObject responseShipStation = new JSONObject(response);
+		log.debug("responseShipStation: " + responseShipStation);
+	}
+	
+	@Override
+	public void getShipStationOrder(String orderNumber) {
+
+		// example
+		//String publishURL = String.format("https://ssapi.shipstation.com/orders?orderNumber=D8G-1198");
+		String publishURL = String.format("https://ssapi.shipstation.com/orders?orderNumber="+orderNumber);
+		//String publishURL = String.format("https://ssapi.shipstation.com/orders");
+		log.debug("publishURL: " + publishURL);
+
+		HttpEntity<Void> requestEntity = new HttpEntity<>(shipHeaders);
+
+		ResponseEntity<String> response = restTemplate.exchange(
+				publishURL, HttpMethod.GET, requestEntity, String.class);
+		//log.debug("response get: " + response);
+		
+		// convert the response String to a JSON object
+		JSONObject responseShipStation = new JSONObject(response);
+		log.debug("responseShipStation: " + responseShipStation);
+		log.debug("response body: " + responseShipStation.get("body"));
+		
+	}
+	
+	@Override
+	public void getShipStationFulfillment(String orderNumber) {
+
+		// example
+		String publishURL = String.format("https://ssapi.shipstation.com/fulfillments");
+		//String publishURL = String.format("https://ssapi.shipstation.com/orders?orderNumber=D8G-1198");
+		//String publishURL = String.format("https://ssapi.shipstation.com/orders?orderNumber="+orderNumber);
+		log.debug("publishURL: " + publishURL);
+
+		HttpEntity<Void> requestEntity = new HttpEntity<>(shipHeaders);
+
+		ResponseEntity<String> response = restTemplate.exchange(
+				publishURL, HttpMethod.GET, requestEntity, String.class);
+		//log.debug("response get: " + response);
+		
+		// convert the response String to a JSON object
+		JSONObject responseShipStation = new JSONObject(response);
+		log.debug("responseShipStation: " + responseShipStation);
+	}		
+
+	/***************************************************************** 
+	 * Private Methods 
+	 **/
+	
+	private JSONObject buildAddress(CustomerOrder customerOrder) {
+		JSONObject address = new JSONObject();
+		address.put("name", customerOrder.getFullName());
+		address.put("company", customerOrder.getCompanyName());
+		address.put("street1", customerOrder.getAddressLine1());
+		address.put("street2", customerOrder.getAddressLine2());
+		address.put("street3", customerOrder.getAddressLine3());
+		address.put("city",  customerOrder.getCity());
+		address.put("state", customerOrder.getState());
+		address.put("postalCode", customerOrder.getPostalCode());
+		address.put("country", "US");  
+		address.put("phone",  customerOrder.getPhoneNumber());
+		return address;
+	}
+	
+	private JSONObject createShipStationOrderBody(CustomerOrder customerOrder) {
+		JSONObject requestBody = new JSONObject();
+
+		requestBody.put("orderNumber", customerOrder.getScInvoiceNumber());
+		requestBody.put("orderDate", customerOrder.getScOrderDate());
+		requestBody.put("orderStatus", "awaiting_shipment");
+		
+		requestBody.put("billTo", buildAddress(customerOrder));
+		requestBody.put("shipTo", buildAddress(customerOrder));
+
+		requestBody.put("amountPaid", customerOrder.getScInvoiceTotal());
+		requestBody.put("shippingPaid", customerOrder.getShippingTotal());
+		requestBody.put("customerEmail", customerOrder.getEmailAddress());
+//		requestBody.put("taxAmount", 
+		
+		/* Extract items from the customer order and add the relevant fields to 
+		 * the ship station order 
+		 */
+		JSONArray items = customerOrder.getItems();
+		ArrayList<JSONObject> shipItems = new ArrayList<>();
+		
+		for (int i = 0; i < items.length(); i++) {
+			
+			JSONObject orderItem = items.getJSONObject(i);
+			
+			JSONObject shipItem =  new JSONObject();
+//TODO confirm customer order price is actually unit price			
+			if (!orderItem.getString("name").equals("Recurring plan")) {
+				shipItem.put("unitPrice", orderItem.getInt("price"));			
+				shipItem.put("quantity", orderItem.getInt("quantity"));
+				shipItem.put("name", orderItem.getString("name"));
+				shipItems.add(shipItem);
+			}	
+
+		}
+		requestBody.put("items", shipItems); 
+		log.debug("requestBody original:" + requestBody);
+		return requestBody;
+	}
+	
 }
